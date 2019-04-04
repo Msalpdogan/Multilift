@@ -2,7 +2,10 @@
 
 var playerID;
 var player;
+var pallet;
 var otherPlayers = {};
+var allPallet ={};
+
 function loadGame() {
 	// load the environment
 	loadEnvironment();
@@ -21,32 +24,46 @@ function loadGame() {
 	};
 }
 
+function getRandomColor() {
+  var length = 3;
+  var chars = '0123456789ABCDEF';
+  var hex = '0x';
+  while(length--) { hex += chars[(Math.random() * 16) | 0];hex=hex+"0";}
+  return hex;
+}
+
 function listenToPlayer( playerData ) {
-	if ( true ) {
-		var ref = firebase.database().ref("data/Players/2/orientation/position");
-		var ref2= firebase.database().ref("data/Players/2/orientation/rotation");
-		ref.on("value", function(snapshot) {
-			var a=snapshot.val();
-			var b=snapshot.val();
-			player = new Player( playerID );
-			player.isMainPlayer = false;
-			player.setOrientation(a,b);
-			player.init();
-			
-				
-		    }, function (error) {
-			console.log("Error: " + error.code);
-			
-		    });
-		
-		    
+
+	if ( playerData.val() ) {
+		otherPlayers[playerData.key].setOrientation( playerData.val().orientation.position, playerData.val().orientation.rotation );
 	}
 }
 
 function listenToOtherPlayers(){
-	//when a player added ,do something
+
+	fbRef.child( "Players" ).on( "child_added", function( playerData ) {
+		if ( playerData.val() ) {
+			if ( playerID != playerData.key && !otherPlayers[playerData.key] ) {
+				otherPlayers[playerData.key] = new Player( playerData.key );
+				otherPlayers[playerData.key].init();
+				fbRef.child( "Players/" + playerData.key ).on( "value", listenToPlayer );
+			}
+		}
+	});
+
+	// when a player is removed, do something
+
+	fbRef.child( "Players" ).on( "child_removed", function( playerData ) {
+		if ( playerData.val() ) {
+			console.log("++++++++++++++"+ playerData.key+"-------");
+			fbRef.child( "Players/" + playerData.key ).off( "value", listenToPlayer );
+			scene.remove( otherPlayers[playerData.key].mesh );
+			delete otherPlayers[playerData.key];
+		}
+	});
+	/*
 	fbRef.child( "Players").on( "child_added", function( playerData ) {
-		if ( true) {
+		if ( false	) {
 			console.log("------------"+playerData.val);
 			if ( true) {
 				otherPlayers["2"] = new Player( "2" );
@@ -63,12 +80,12 @@ function listenToOtherPlayers(){
 			scene.remove( otherPlayers[playerData.key].mesh );
 			delete otherPlayers[playerData.key];
 		}
-	});
+	});*/
 }
 
 function initMainPlayer() {
 	
-	playerID=1;
+	playerID=Math.random().toString(36).substr(2, 9);
 	fbRef.child( "Players/" + playerID ).set({
 		isOnline: true,
 		orientation: {
@@ -80,33 +97,36 @@ function initMainPlayer() {
 	player = new Player( playerID );
 	player.isMainPlayer = true;
 	player.init();
+	camera.position.set(100,80,100);
 }
 
 
 function loadEnvironment() {
+    var boolean_pallets=false;
+		
 				// controls
                 var animationGroup = new THREE.AnimationObjectGroup();
 				// world
 				//palet büyüklükleri
                 var geometrypal = new THREE.BoxBufferGeometry( 4, 0.5, 5 );
 				//palet material
-				var materialpal = new THREE.MeshLambertMaterial( { color: 0xC79C0A,} );
+				var materialpal = new THREE.MeshLambertMaterial( { color: 0xC79C0A,transparent:true} );
 				//ray büyüklükleri
 				var geometryray = new THREE.BoxBufferGeometry( 0.5, 1, 8 );
 				//ray material
-				var materialray = new THREE.MeshLambertMaterial( { color: 0xF5F5DC   } );
+				var materialray = new THREE.MeshLambertMaterial( { color: 0xF5F5DC ,transparent:true  } );
 				//taban büyüklükleri
 				var geometry2= new THREE.BoxBufferGeometry( 30*8, 3, 192 );
 				//taban material
-				var material2 = new THREE.MeshLambertMaterial( { color: 0x000001 } );
+				var material2 = new THREE.MeshLambertMaterial( { color: 0x000001,transparent:true } );
 				//yol büyüklükleri
 				var geometryyol= new THREE.BoxBufferGeometry( 30*8, 2, 224 );
 				//yol material
-				var materialyol = new THREE.MeshLambertMaterial( { color: 0x2c2033 } );
+				var materialyol = new THREE.MeshLambertMaterial( { color: 0x2c2033,transparent:true } );
 				//direk büyüklükleri
 				var geometrydir = new THREE.BoxBufferGeometry( 0.2,8, 0.5 );
 				//direk material
-				var materialdir = new THREE.MeshLambertMaterial( { color: 0x2a80a3  } );
+				var materialdir = new THREE.MeshLambertMaterial( { color: 0x2a80a3  ,transparent:true} );
 				//duvar büyüklükleri
 				var geometryduv= new THREE.BoxBufferGeometry( 2, 40, 28*8 );
 				//duvar material
@@ -117,32 +137,7 @@ function loadEnvironment() {
 
 						for ( var j = 0; j < 24; j ++ ) {
 
-							if(true )
-							{
-								
-								var random_boolean = Math.random() >= 0.10;
-								if(random_boolean  )
-								{ 
-									//kutu büyüklükleri
-									var geometry = new THREE.BoxBufferGeometry( 5, 5, 5 );
-									//kutu material
-									var material = new THREE.MeshLambertMaterial( { color:	0xfcf80f} );
-									 
-									var mesh = new THREE.Mesh( geometry, material );
-									mesh.position.x = 16 - ( 8 * i );
-									mesh.position.y = k*8;
-									mesh.position.z = 16 - ( 8* j );
-									scene.add( mesh );
-									animationGroup.add( mesh );
-										//palet
-									var meshpal = new THREE.Mesh( geometrypal, materialpal );
-									meshpal.position.x = 16 - ( 8 * i );
-									meshpal.position.y = k*8 -2.5;
-									meshpal.position.z = 16 - ( 8* j );
-									scene.add( meshpal );
-									animationGroup.add( meshpal );
-									raycaster = new THREE.Raycaster();
-								}
+							
 									var meshray = new THREE.Mesh( geometryray, materialray );
 									meshray.position.x = 14 - ( 8 * i );
 									meshray.position.y = k*8-3;
@@ -170,7 +165,9 @@ function loadEnvironment() {
 									meshraydir1.position.z = 19 - ( 8* j );
 									scene.add( meshraydir1 );
 									animationGroup.add( meshraydir1 );
-							}
+								
+
+							
 							if( i==0&j==0&k==0 )
 							{
 									var mesh2 = new THREE.Mesh( geometry2, material2 );
@@ -195,9 +192,75 @@ function loadEnvironment() {
 									meshduv.material.opacity = 0.4;
 									scene.add( meshduv );
 							}
-						}
+						
+						if( boolean_pallets==false	)
+								{ 
+									//paletlerin unique color larını tutacak 2d array
+									var PalletColor =new Array();
+									var counter = 0;
+										
+									for (var k = 3120; k >= 0; k--) {
+									try {
+										var tempColor=getRandomColor();
+										//kutu büyüklükleri
+										var geometry = new THREE.BoxBufferGeometry( 5, 5, 5 );
+										//kutu materialdir
+										var material = new THREE.MeshLambertMaterial( { color:	0xFF0000} );	
+
+										var ref= firebase.database().ref("Pallets/"+k.toString());
+										ref.on("value", function(snapshot) {
+										var a=snapshot.val().Lo;
+										var x=a.slice(0,2);
+										var y=a.slice(3,5);
+										var z=a.slice(6,8);
+										var ExpDate=snapshot.val().ExpDate;
+										
+
+										var mesh= new THREE.Mesh( geometry, material );
+										mesh.position.x = 16 - ( 8 * y );
+										mesh.position.y = x*8;
+										mesh.position.z = 16 - ( 8* z );
+										scene.add( mesh );
+										animationGroup.add( mesh);
+											//palet
+										var meshpal = new THREE.Mesh( geometrypal, materialpal );
+										meshpal.position.x = 16 - ( 8 * y );
+										meshpal.position.y = x*8 -2.5;
+										meshpal.position.z = 16 - ( 8* z );
+										if (true) 
+											{
+												PalletColor[colorCount]=new Array(ExpDate,tempColor);
+												
+												mesh.MeshLambertMaterial.color.setHex(tempColor);
+											}
+										counter=counter+1;
+										scene.add( meshpal );
+										animationGroup.add( meshpal );
+										raycaster = new THREE.Raycaster();
+											
+									    }, function (error) {
+										console.log("Error: " + error.code);
+										
+									    });
+									}
+									catch(err) {
+
+										console.log(err.message+"/////////////////////");
+										continue;
+									}
+										
+
+									}
+									
+									 boolean_pallets=true ;
+									
+								}
+									
+							}
 					}
 				}
+
+				
 				
 				// lights
                     
