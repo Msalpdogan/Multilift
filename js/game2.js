@@ -89,7 +89,7 @@ function initMainPlayer() {
 	fbRef.child( "Players/" + playerID ).set({
 		isOnline: true,
 		orientation: {
-			position: {x: 0, y:0, z:0},
+			position: {x: 0, y:-5, z:0},
 			rotation: {x: -5, y:5, z:5}
 		}
 	});
@@ -197,15 +197,24 @@ function loadEnvironment() {
 								{ 
 									//paletlerin unique color larını tutacak 2d array
 									var PalletColor =new Array();
-									var counter = 0;
-										
+								
+									
 									for (var k = 3120; k >= 0; k--) {
 									try {
-										var tempColor=getRandomColor();
+										
 										//kutu büyüklükleri
 										var geometry = new THREE.BoxBufferGeometry( 5, 5, 5 );
 										//kutu materialdir
-										var material = new THREE.MeshLambertMaterial( { color:	0xFF0000} );	
+										var material1 = new THREE.MeshLambertMaterial( { color:	0xff0000} );	
+										var material2 = new THREE.MeshLambertMaterial( { color:	0xff8000} );
+										var material3 = new THREE.MeshLambertMaterial( { color:	0xffbf00} );
+										var material4 = new THREE.MeshLambertMaterial( { color:	0xffff00} );
+										var material5 = new THREE.MeshLambertMaterial( { color:	0xbfff00} );
+										var material6 = new THREE.MeshLambertMaterial( { color:	0x80ff00} );
+										var material7 = new THREE.MeshLambertMaterial( { color:	0x40ff00} );
+										var material8 = new THREE.MeshLambertMaterial( { color:	0x00ff80} );
+										var material9 = new THREE.MeshLambertMaterial( { color:	0x00ffff} );
+										var material10= new THREE.MeshLambertMaterial( { color: 0x0040ff} );	
 
 										var ref= firebase.database().ref("Pallets/"+k.toString());
 										ref.on("value", function(snapshot) {
@@ -214,9 +223,25 @@ function loadEnvironment() {
 										var y=a.slice(3,5);
 										var z=a.slice(6,8);
 										var ExpDate=snapshot.val().ExpDate;
-										
-
-										var mesh= new THREE.Mesh( geometry, material );
+										var Pallet=snapshot.val().Pallet;
+										var blaloc =ExpDate.indexOf(".");
+										var ExpDatePriority=ExpDate.slice(blaloc+1,blaloc+3)
+										ExpDatePriority = 11- ExpDatePriority;
+										ExpDatePriority %=12;
+										var locationPio;
+										if (z<12) {
+											locationPio=z;
+										}
+										if (z>11) {
+											locationPio =23-z;
+											//23 den cıkarıp mod alacaksın location piorty için
+										}
+										locationPio=parseInt(locationPio)+1;
+										//document.write("/"+Pallet+"/-------/"+ExpDatePriority+"/------/"+locationPio+"/");
+										var piority= ExpDatePriority*locationPio;
+										//document.write(piority+"<BR/>");
+										if (piority<10) {
+											var mesh= new THREE.Mesh( geometry, material10 );
 										mesh.position.x = 16 - ( 8 * y );
 										mesh.position.y = x*8;
 										mesh.position.z = 16 - ( 8* z );
@@ -227,13 +252,135 @@ function loadEnvironment() {
 										meshpal.position.x = 16 - ( 8 * y );
 										meshpal.position.y = x*8 -2.5;
 										meshpal.position.z = 16 - ( 8* z );
-										if (true) 
-											{
-												PalletColor[colorCount]=new Array(ExpDate,tempColor);
-												
-												mesh.MeshLambertMaterial.color.setHex(tempColor);
-											}
-										counter=counter+1;
+									
+										}
+										if (piority>=10 && piority<15) {
+											var mesh= new THREE.Mesh( geometry, material9 );
+										mesh.position.x = 16 - ( 8 * y );
+										mesh.position.y = x*8;
+										mesh.position.z = 16 - ( 8* z );
+										scene.add( mesh );
+										animationGroup.add( mesh);
+											//palet
+										var meshpal = new THREE.Mesh( geometrypal, materialpal );
+										meshpal.position.x = 16 - ( 8 * y );
+										meshpal.position.y = x*8 -2.5;
+										meshpal.position.z = 16 - ( 8* z );
+									
+										}
+										if (piority>=15 && piority<20) {
+											var mesh= new THREE.Mesh( geometry, material8 );
+										mesh.position.x = 16 - ( 8 * y );
+										mesh.position.y = x*8;
+										mesh.position.z = 16 - ( 8* z );
+										scene.add( mesh );
+										animationGroup.add( mesh);
+											//palet
+										var meshpal = new THREE.Mesh( geometrypal, materialpal );
+										meshpal.position.x = 16 - ( 8 * y );
+										meshpal.position.y = x*8 -2.5;
+										meshpal.position.z = 16 - ( 8* z );
+									
+										}
+										if (piority>=20 && piority<25) {
+											var mesh= new THREE.Mesh( geometry, material7 );
+										mesh.position.x = 16 - ( 8 * y );
+										mesh.position.y = x*8;
+										mesh.position.z = 16 - ( 8* z );
+										scene.add( mesh );
+										animationGroup.add( mesh);
+											//palet
+										var meshpal = new THREE.Mesh( geometrypal, materialpal );
+										meshpal.position.x = 16 - ( 8 * y );
+										meshpal.position.y = x*8 -2.5;
+										meshpal.position.z = 16 - ( 8* z );
+									
+										}
+										if (piority>=25 && piority<30) {
+											var mesh= new THREE.Mesh( geometry, material6 );
+										mesh.position.x = 16 - ( 8 * y );
+										mesh.position.y = x*8;
+										mesh.position.z = 16 - ( 8* z );
+										scene.add( mesh );
+										animationGroup.add( mesh);
+											//palet
+										var meshpal = new THREE.Mesh( geometrypal, materialpal );
+										meshpal.position.x = 16 - ( 8 * y );
+										meshpal.position.y = x*8 -2.5;
+										meshpal.position.z = 16 - ( 8* z );
+									
+										}
+										if (piority>=30 && piority<35) {
+											var mesh= new THREE.Mesh( geometry, material5 );
+										mesh.position.x = 16 - ( 8 * y );
+										mesh.position.y = x*8;
+										mesh.position.z = 16 - ( 8* z );
+										scene.add( mesh );
+										animationGroup.add( mesh);
+											//palet
+										var meshpal = new THREE.Mesh( geometrypal, materialpal );
+										meshpal.position.x = 16 - ( 8 * y );
+										meshpal.position.y = x*8 -2.5;
+										meshpal.position.z = 16 - ( 8* z );
+									
+										}
+										if (piority>=35 && piority<40) {
+											var mesh= new THREE.Mesh( geometry, material4 );
+										mesh.position.x = 16 - ( 8 * y );
+										mesh.position.y = x*8;
+										mesh.position.z = 16 - ( 8* z );
+										scene.add( mesh );
+										animationGroup.add( mesh);
+											//palet
+										var meshpal = new THREE.Mesh( geometrypal, materialpal );
+										meshpal.position.x = 16 - ( 8 * y );
+										meshpal.position.y = x*8 -2.5;
+										meshpal.position.z = 16 - ( 8* z );
+									
+										}
+										if (piority>=40 && piority<45) {
+											var mesh= new THREE.Mesh( geometry, material3 );
+										mesh.position.x = 16 - ( 8 * y );
+										mesh.position.y = x*8;
+										mesh.position.z = 16 - ( 8* z );
+										scene.add( mesh );
+										animationGroup.add( mesh);
+											//palet
+										var meshpal = new THREE.Mesh( geometrypal, materialpal );
+										meshpal.position.x = 16 - ( 8 * y );
+										meshpal.position.y = x*8 -2.5;
+										meshpal.position.z = 16 - ( 8* z );
+									
+										}
+										if (piority>=45 && piority<50) {
+											var mesh= new THREE.Mesh( geometry, material2);
+										mesh.position.x = 16 - ( 8 * y );
+										mesh.position.y = x*8;
+										mesh.position.z = 16 - ( 8* z );
+										scene.add( mesh );
+										animationGroup.add( mesh);
+											//palet
+										var meshpal = new THREE.Mesh( geometrypal, materialpal );
+										meshpal.position.x = 16 - ( 8 * y );
+										meshpal.position.y = x*8 -2.5;
+										meshpal.position.z = 16 - ( 8* z );
+									
+										}
+										if (piority>=50 ) {
+											var mesh= new THREE.Mesh( geometry, material1 );
+										mesh.position.x = 16 - ( 8 * y );
+										mesh.position.y = x*8;
+										mesh.position.z = 16 - ( 8* z );
+										scene.add( mesh );
+										animationGroup.add( mesh);
+											//palet
+										var meshpal = new THREE.Mesh( geometrypal, materialpal );
+										meshpal.position.x = 16 - ( 8 * y );
+										meshpal.position.y = x*8 -2.5;
+										meshpal.position.z = 16 - ( 8* z );
+									
+										}
+										
 										scene.add( meshpal );
 										animationGroup.add( meshpal );
 										raycaster = new THREE.Raycaster();
@@ -245,7 +392,7 @@ function loadEnvironment() {
 									}
 									catch(err) {
 
-										console.log(err.message+"/////////////////////");
+										console.log(err.message+"/ Aranan palet yok raf bos/");
 										continue;
 									}
 										
